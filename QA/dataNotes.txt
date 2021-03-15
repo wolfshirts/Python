@@ -1,0 +1,45 @@
+Routes:
+get /qa/questions
+  params:
+    product_id: int, specifies product id.
+    page: int, selects page of results to return default 1
+    count: int, specifies results per page, default 5.
+
+get /qa/questions/:question_id/answers
+  params:
+    question_id, int required. Id of the question for which answers are needed.
+  query params:
+    page: int, selects page of results to return default 1.
+    count: int, specifies how many results per page to return default 5
+
+post /qa/questions
+  body params:
+    body: text text of q being asked
+    name: text username
+    email: text email addy for question asker
+    product_id: int required id of product for which question is posted.
+
+post /qa/questions/:question_id/answer
+  question_id: int required id of question to post answer for
+  Body params:
+     body: text, text of question being asked
+     email: email addy for asker
+     name: text username for question asker
+     photos: [text] an array of urls corresponding to images on display.
+
+put /qa/questions/:question_id/helpful
+  params:
+    question_id int required id of question to update.
+
+put /qa/questions/:question_id/report
+  params:
+    question_id int required id to update.
+
+put /qa/answer/:answer_id/helpful
+  params:
+    question_id int required id to update
+
+put /qa/answers/:answer_id/report
+  params
+    answer_id int required int to update.
+
