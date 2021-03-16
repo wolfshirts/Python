@@ -11,8 +11,7 @@ const files = [
 const readInData = (lines, table = 0) => {
   const rawData = files[table];
   const stream = fs.createReadStream(rawData, "utf8");
-  // Read first line, so that I have my column names
-  // Ignore first line of data.
+
   const line = readLine.createInterface({
     input: stream,
   });
