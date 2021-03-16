@@ -2,14 +2,26 @@ const fs = require("fs");
 const path = require("path");
 const readLine = require("readline");
 
+const pool = require("../models/pg");
+
 const files = [
   path.join(__dirname, "../rawData", "answers_photos.csv"),
-  path.join(__dirname, "rawData", "answers.csv"),
-  path.join(__dirname, "rawData", "questions.csv"),
+  path.join(__dirname, "../rawData", "answers.csv"),
+  path.join(__dirname, "../rawData", "questions.csv"),
 ];
 
-const readInData = (lines, table = 0) => {
-  const rawData = files[table];
+const fileObject = {
+  photos: files[0],
+  answers: files[1],
+  questions: files[2],
+};
+
+const readInData = (table) => {
+  if (!fileObject[table]) {
+    return;
+  }
+
+  const rawData = fileObject[table];
   const stream = fs.createReadStream(rawData, "utf8");
 
   const line = readLine.createInterface({
@@ -27,11 +39,19 @@ const readInData = (lines, table = 0) => {
       currentLineCount += 1;
     } else {
       let dataValues = data.split(",");
-      for (let i = 0; i < values.length; i++) {
-        dataObj[values[i]] = dataValues[i];
-      }
-      dataObjects.push(dataObj);
+      pool.query(
+        "INSERT INTO photos(id, answer_id, url) VALUES($1, $2, $3)",
+        dataValues,
+        (err, result) => {
+          if (err) {
+            return console.error("Error on query.", err.stack);
+          }
+
+          console.log("Processing: ", currentLineCount);
+        }
+      );
       currentLineCount += 1;
     }
   });
 };
+readInData("answers");

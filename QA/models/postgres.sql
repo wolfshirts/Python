@@ -1,11 +1,11 @@
 # Create tables in db.
 
-CREATE DATABASE sdc;
-USE sdc;
+-- CREATE DATABASE sdc;
+-- USE sdc;
 
 CREATE TABLE questions(
-  product_id INT NOT NULL UNIQUE,
-  id INT NOT NULL AUTO_INCREMENT UNIQUE,
+  product_id INT,
+  id SERIAL UNIQUE,
   date_written DATE NOT NULL,
   body VARCHAR(1000) NOT NULL,
   asker_name VARCHAR(60) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE questions(
 );
 
 CREATE TABLE answers(
-  id INT NOT NULL AUTO_INCREMENT UNIQUE,
+  id SERIAL UNIQUE,
   question_id INT NOT NULL,
   body VARCHAR(1000) NOT NULL,
   date_written DATE NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE answers(
 );
 
 CREATE TABLE photos(
- id INT NOT NULL AUTO_INCREMENT UNIQUE,
+ id SERIAL UNIQUE,
  answer_id INT NOT NULL,
  url VARCHAR(1000) NOT NULL,
  PRIMARY KEY (id)
