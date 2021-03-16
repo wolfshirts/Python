@@ -4,14 +4,14 @@
 -- USE sdc;
 
 CREATE TABLE questions(
-  product_id INT,
   id SERIAL UNIQUE,
-  date_written DATE NOT NULL,
+  product_id INT,
   body VARCHAR(1000) NOT NULL,
+  date_written DATE NOT NULL,
   asker_name VARCHAR(60) NOT NULL,
   asker_email VARCHAR(60),
+  reported INT DEFAULT 0,
   helpful INT DEFAULT 0,
-  reported BOOLEAN DEFAULT false,
   PRIMARY KEY(id)
 );
 
@@ -23,7 +23,7 @@ CREATE TABLE answers(
   answerer_name VARCHAR(60) NOT NULL,
   answerer_email VARCHAR(60) NOT NULL,
   helpful INT DEFAULT 0,
-  reported BOOLEAN DEFAULT false,
+  reported INT DEFAULT 0,
   PRIMARY KEY (id)
 );
 
