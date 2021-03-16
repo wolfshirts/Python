@@ -8,11 +8,6 @@ const files = [
   path.join(__dirname, "rawData", "questions.csv"),
 ];
 
-const getDataObjects = (dataObjects) => {
-  console.log(dataObjects);
-  return dataObjects;
-};
-
 const readInData = (lines, table = 0) => {
   const rawData = files[table];
   const stream = fs.createReadStream(rawData, "utf8");
@@ -21,16 +16,12 @@ const readInData = (lines, table = 0) => {
   const line = readLine.createInterface({
     input: stream,
   });
+
   let currentLineCount = 0;
   let dataObjects = [];
   let values = [];
-  callback = getDataObjects;
+
   line.on("line", (data) => {
-    if (currentLineCount > lines) {
-      stream.destroy();
-      line.close();
-      return callback(dataObjects);
-    }
     let dataObj = {};
     if (currentLineCount === 0) {
       values = data.toString().split(",");
@@ -45,5 +36,3 @@ const readInData = (lines, table = 0) => {
     }
   });
 };
-
-readInData(3);
