@@ -1,13 +1,13 @@
-const fs = require("fs");
-const path = require("path");
-const readLine = require("readline");
+const fs = require('fs');
+const path = require('path');
+const readLine = require('readline');
 
-const pool = require("../models/pg");
+const pool = require('../models/pg');
 
 const files = {
-  photos: path.join(__dirname, "../rawData", "answers_photos.csv"),
-  answers: path.join(__dirname, "../rawData", "answers.csv"),
-  questions: path.join(__dirname, "../rawData", "questions.csv"),
+  photos: path.join(__dirname, '../rawData', 'answers_photos.csv'),
+  answers: path.join(__dirname, '../rawData', 'answers.csv'),
+  questions: path.join(__dirname, '../rawData', 'questions.csv'),
 };
 
 const createTables = () => {
@@ -22,7 +22,7 @@ const createTables = () => {
       if (err) {
         throw new Error(err);
       }
-    }
+    },
   );
   pool.query(
     `CREATE TABLE IF NOT EXISTS answers(
@@ -40,7 +40,7 @@ const createTables = () => {
       if (err) {
         throw new Error(err);
       }
-    }
+    },
   );
   pool.query(
     `CREATE TABLE IF NOT EXISTS questions(
@@ -58,19 +58,19 @@ const createTables = () => {
       if (err) {
         throw new Error(err);
       }
-    }
+    },
   );
 };
 
 const loadData = () => {
   pool.query(
-    `COPY answers(id, question_id, body, date_written, answerer_name, answerer_email, helpful, reported) FROM ${files.answers} DELIMITER ',' csv header;`
+    `COPY answers(id, question_id, body, date_written, answerer_name, answerer_email, helpful, reported) FROM ${files.answers} DELIMITER ',' csv header;`,
   );
   pool.query(
-    `COPY photos(id, answer_id, url) FROM ${files.photos} DELIMITER ',' csv header;`
+    `COPY photos(id, answer_id, url) FROM ${files.photos} DELIMITER ',' csv header;`,
   );
   pool.query(
-    `COPY questions(id, product_id, body, date_written, asker_name, asker_email, reported, helpful) FROM ${files.questions} DELIMITER ',' csv header;`
+    `COPY questions(id, product_id, body, date_written, asker_name, asker_email, reported, helpful) FROM ${files.questions} DELIMITER ',' csv header;`,
   );
 };
 

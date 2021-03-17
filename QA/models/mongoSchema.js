@@ -1,13 +1,13 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-mongoose.connect("mongodb://localhost/sdc", {
+mongoose.connect('mongodb://localhost/sdc', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
 const db = mongoose.connection;
 
-db.once("open", function () {
+db.once('open', () => {
   const answersSchema = new mongoose.Schema({
     product_id: Number,
     answer_id: Number,
