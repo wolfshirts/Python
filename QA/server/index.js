@@ -1,5 +1,5 @@
 const express = require("express");
-
+const queries = require("../models/queries");
 const app = express();
 
 app.use(express.json());
@@ -66,32 +66,72 @@ app.post("/qa/questions/:question_id/answers", (req, res) => {
   // status 201
   if (
     !req.params.question_id ||
-    !req.body.question_id ||
     !req.body.name ||
-    !req.body.email
+    !req.body.email ||
+    !req.body.body
   ) {
     res.status(400).send("Missing required parameters.");
   }
+  // Hopefully they send photos as a string, and not as a blob or something.
+  const queryObj = {
+    question_id: req.params.question_id,
+    body: req.body.body,
+    name: req.body.name,
+    email: req.body.email,
+    photos: [req.body.photos] || null,
+  };
 });
 
 app.put("/qa/questions/:question_id/helpful", (req, res) => {
   // needs that id.
   // status 204
+  if (!req.params.question_id) {
+    res.status(400).send("Missing question_id");
+  }
+  // use questionId to mark helpful.
+  queries.markQuestionAsHelpful(req.params.question_id, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(400).send(err);
+    } else {
+      res.status(204);
+    }
+  });
 });
 
 app.put("/qa/questions/:question_id/report", (req, res) => {
   // needs question id.
   // status 204
+  if (!req.params.question_id) {
+    res.status(400).send("Missing question_id");
+  }
+  // user question_id to report.
+  queries.reportQuestion(req.params.question_id, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(400).send(err);
+    } else {
+      res.status(204);
+    }
+  });
 });
 
 app.put("/qa/answers/:answer_id/helpful", (req, res) => {
   // needs answer_id
   // status 204
+  if (!req.params.answer_id) {
+    res.status(400).send("Missing answer_id");
+  }
+  // use answer_id to helpful.
 });
 
 app.put("/qa/answers/:answer_id/report", (req, res) => {
   // needs answer_id
   // status 204
+  if (!req.params.answer_id) {
+    res.status(400).send("Missing answer_id");
+  }
+  //use answer id to report.
 });
 
 app.listen(port, () => {
