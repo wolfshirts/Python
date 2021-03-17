@@ -51,6 +51,12 @@ app.post("/qa/questions", (req, res) => {
   ) {
     res.status(400).send("Missing required parameters.");
   }
+  const queryObj = {
+    product_id: req.body.product_id,
+    name: req.body.name,
+    body: req.body.body,
+    email: req.body.email,
+  };
 });
 
 app.post("/qa/questions/:question_id/answers", (req, res) => {
