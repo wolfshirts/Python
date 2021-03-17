@@ -36,6 +36,8 @@ const readInData = (table) => {
     let dataObj = {};
     if (currentLineCount === 0) {
       values = data.toString().split(",");
+      // FIXME: split on " or comma then check what the char to the right of it is. if it's a "",
+      // We know that the split was ok, if not we need to find the first index with a comma, and join everything between the two commas. Something like that.
       currentLineCount += 1;
     } else {
       let dataValues = data.split(",");
