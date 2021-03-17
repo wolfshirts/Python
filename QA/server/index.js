@@ -122,7 +122,13 @@ app.put("/qa/answers/:answer_id/helpful", (req, res) => {
   if (!req.params.answer_id) {
     res.status(400).send("Missing answer_id");
   }
-  // use answer_id to helpful.
+  queries.markAnswerAsHelpful(req.params.answer_id, (err, result) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      res.status(204);
+    }
+  });
 });
 
 app.put("/qa/answers/:answer_id/report", (req, res) => {
@@ -131,7 +137,13 @@ app.put("/qa/answers/:answer_id/report", (req, res) => {
   if (!req.params.answer_id) {
     res.status(400).send("Missing answer_id");
   }
-  //use answer id to report.
+  queries.reportAnswer(req.params.answer_id, (err, result) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      res.status(204);
+    }
+  });
 });
 
 app.listen(port, () => {
