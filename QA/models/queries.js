@@ -12,19 +12,33 @@ const postNewAnswer = (questionId, queryObj, cb) => {
   const { question_id, body, name, email, photos } = queryObj;
   const answerInsert = [question_id, body, name, email];
   pool.query(
-    "INSERT INTO answers (question_id, body, date_written, answerer_name, answerer_email) VALUES($1, $2, CURRENT_DATE, $3, $4",
+    "INSERT INTO answers (question_id, body, date_written, answerer_name, answerer_email) VALUES($1, $2, CURRENT_DATE, $3, $4) RETURNING id",
     answerInsert,
     (err, result) => {
       if (err) {
         cb(err, null);
       }
-      // else if (photos !== null) {
-      //   // If there are photos we're not done. We need to insert them as well.
-      //   photos.forEach((photo)=>{
 
-      //   });
-      // }
-      else {
+      if (photos !== null) {
+        // need to bulk insert the photos here.
+        // build the statement
+        const answerId = result.rows[0].id;
+        const values = [answerId, ...photos];
+        let queryString = "INSERT INTO photos (answer_id, url) VALUES ";
+        // VALUES($1, $2), VALUES($1, $3)
+        for (let i = 1; i < values.length; i += 1) {
+          let numericVal = i + 1;
+          queryString += `($1, $${numericVal}), `;
+        }
+        queryString = queryString.slice(0, -2);
+        pool.query(queryString, values, (e, res) => {
+          if (e) {
+            cb(err, null);
+          } else {
+            cb(null, res);
+          }
+        });
+      } else {
         cb(null, result);
       }
     }

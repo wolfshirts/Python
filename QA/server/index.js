@@ -73,13 +73,23 @@ app.post("/qa/questions/:question_id/answers", (req, res) => {
     res.status(400).send("Missing required parameters.");
   }
   // Hopefully they send photos as a string, and not as a blob or something.
+  if (req.body.photos && !Array.isArray(req.body.photos)) {
+    res.status(400).send("Photos must be array.");
+  }
   const queryObj = {
     question_id: req.params.question_id,
     body: req.body.body,
     name: req.body.name,
     email: req.body.email,
-    photos: [req.body.photos] || null,
+    photos: req.body.photos || null,
   };
+  queries.postNewAnswer(req.params.question_id, queryObj, (err) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      res.send(201);
+    }
+  });
 });
 
 app.put("/qa/questions/:question_id/helpful", (req, res) => {

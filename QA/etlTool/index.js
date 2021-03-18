@@ -11,6 +11,7 @@ const files = {
 };
 
 // FIXME: create database, change database.
+// FIXME: need to set nextval or setval select max(id) from answers;
 
 const createTables = () => {
   pool.query(
