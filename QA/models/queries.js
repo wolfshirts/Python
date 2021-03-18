@@ -1,7 +1,10 @@
 const pool = require("./pg.js");
 
 const getQuestions = (productId, queryObj, cb) => {};
-const getAnswers = (questionId, queryObj, cb) => {};
+const getAnswers = (questionId, queryObj, cb) => {
+  // Check if the
+  pool.query("SELECT * FROM answers WHERE question_id=$1");
+};
 
 const postNewQuestion = (questionId, queryObj, cb) => {};
 const postNewAnswer = (questionId, queryObj, cb) => {
@@ -14,9 +17,14 @@ const postNewAnswer = (questionId, queryObj, cb) => {
     (err, result) => {
       if (err) {
         cb(err, null);
-      } else if (photos !== null) {
-        // If there are photos we're not done. We need to insert them as well.
-      } else {
+      }
+      // else if (photos !== null) {
+      //   // If there are photos we're not done. We need to insert them as well.
+      //   photos.forEach((photo)=>{
+
+      //   });
+      // }
+      else {
         cb(null, result);
       }
     }
