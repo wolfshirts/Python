@@ -1,5 +1,8 @@
 const answerParser = (data, withID = true) => {
   // Create the object
+
+  // Ayyyy! To do this in constant time we just push our objects into an array as well.
+  const objArray = [];
   const seenObjects = {};
   // Object is converted
   data.forEach((obj) => {
@@ -12,6 +15,8 @@ const answerParser = (data, withID = true) => {
     delete obj.helpful;
     delete obj.reported;
 
+    // If i'm right here, we can just push the obj to the array too it should act as a reference.
+    objArray.push(obj);
     if (obj.url === null) {
       delete obj.url;
       delete obj.photos_id;
@@ -47,6 +52,9 @@ const answerParser = (data, withID = true) => {
       }
     }
   });
+  if (withID) {
+    return objArray;
+  }
   return seenObjects;
 };
 

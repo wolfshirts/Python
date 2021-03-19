@@ -44,7 +44,7 @@ app.get("/qa/questions/:question_id/answers", (req, res) => {
       res.status(400).send(err);
     } else {
       // Create the object
-      const seenObjects = {};
+      //const seenObjects = {};
 
       // Object is converted
       const parsedData = answerParser.answerParser(result);
