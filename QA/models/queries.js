@@ -2,11 +2,49 @@ const pool = require("./pg.js");
 
 const getQuestions = (productId, queryObj, cb) => {};
 const getAnswers = (questionId, queryObj, cb) => {
-  // Check if the
-  pool.query("SELECT * FROM answers WHERE question_id=$1");
+  // FIXME: THIS QUERY IS VERY SLOW THE DATA WE WANT IS AT THE END OF THE TABLE.
+
+  // This is a somewhat challenging query to write. I want to select from answers where the id is the lowest possible not reported, and the limit is number of results;
+
+  // SELECT * FROM answers where reported=0 ORDER BY id ASC LIMIT $LIMIT OFFSET $offset;
+  const { page, count } = queryObj;
+  let offset = 0;
+  if (page > 1) {
+    // Adjust offset
+    offset = page * count;
+  }
+  const queryArray = [questionId, count, offset];
+  // FIXME:  need to get back photos too. Ooops.
+  pool.query(
+    // "SELECT * FROM answers LEFT OUTER JOIN photos ON answers.id=photos.answer_id WHERE reported=0 AND question_id=$1 ORDER BY answers.id ASC LIMIT $2 OFFSET $3",
+    "select answers.*, photos.url, photos.id as photos_id from answers LEFT OUTER JOIN photos ON answers.id = photos.answer_id where reported=0 and question_id=$1 ORDER BY answers.id ASC LIMIT $2 OFFSET $3",
+    queryArray,
+    (err, result) => {
+      if (err) {
+        cb(err, null);
+      } else {
+        cb(null, result.rows);
+      }
+    }
+  );
 };
 
-const postNewQuestion = (questionId, queryObj, cb) => {};
+const postNewQuestion = (productId, queryObj, cb) => {
+  const { body, name, email } = queryObj;
+  const queryArray = [productId, body, name, email];
+  pool.query(
+    "INSERT INTO questions (product_id, body, date_written, asker_name, asker_email) VALUES ($1, $2, CURRENT_DATE, $3, $4)",
+    queryArray,
+    (err, res) => {
+      if (err) {
+        cb(err, null);
+      } else {
+        cb(null, res);
+      }
+    }
+  );
+};
+
 const postNewAnswer = (questionId, queryObj, cb) => {
   // CURRENT_DATE gives us the format we need.
   const { question_id, body, name, email, photos } = queryObj;

@@ -1,5 +1,6 @@
 const express = require("express");
 const queries = require("../models/queries");
+const answerParser = require("../models/answerParser");
 const app = express();
 
 app.use(express.json());
@@ -20,6 +21,7 @@ app.get("/qa/questions", (req, res) => {
     page: req.query.page || 1,
     count: req.query.count || 5,
   };
+
   // Send the query object to our get questions pool.
 });
 
@@ -34,8 +36,75 @@ app.get("/qa/questions/:question_id/answers", (req, res) => {
   const queryObj = {
     question_id: req.params.question_id,
     page: req.query.page || 1,
-    count: req.query.count || 1,
+    count: req.query.count || 5,
   };
+  // TODO: FIXME: Break this into a healper function.
+  queries.getAnswers(req.params.question_id, queryObj, (err, result) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      // Create the object
+      const seenObjects = {};
+
+      // Object is converted
+      const parsedData = answerParser.answerParser(result);
+      debugger;
+      // result.forEach((obj) => {
+      //   // We should only ever have one instance of the obj id in our seen objects.
+      //   obj.answer_id = obj.id;
+      //   delete obj.id;
+      //   obj.date = obj.date_written.toISOString();
+      //   delete obj.date_written;
+      //   obj.helpfulness = obj.helpful;
+      //   delete obj.helpful;
+      //   delete obj.reported;
+
+      //   if (obj.url === null) {
+      //     delete obj.url;
+      //     delete obj.photos_id;
+      //     seenObjects[obj.answer_id] = obj;
+      //   }
+
+      //   if (obj.url) {
+      //     // If we have a url we might have more.
+
+      //     // So we put the obj in our seen objects with the key being its answer id to look it up.
+      //     if (!seenObjects[obj.answer_id]) {
+      //       // This is our first encounter, so we setup the array
+      //       obj.photos = [];
+      //       // Then we push the info we need into the array as an object.
+      //       const photoObj = {
+      //         id: obj.photos_id,
+      //         url: obj.url,
+      //       };
+      //       obj.photos.push(photoObj);
+      //       // Should be safe to delete info now
+      //       delete obj.url;
+      //       delete obj.photos_id;
+      //       seenObjects[obj.answer_id] = obj;
+      //     } else {
+      //       // If we've seen the object already we can push a photo obj to its array.
+      //       // These should all be stored by reference, so at the end of this we can clear the
+      //       // extra data.
+      //       const photoObj = {
+      //         id: obj.photos_id,
+      //         url: obj.url,
+      //       };
+      //       seenObjects[obj.answer_id].photos.push(photoObj);
+      //     }
+      //   }
+      // });
+
+      // Get the urls attached with id.
+      const responseJson = {
+        question: `${req.params.question_id}`,
+        page: req.query.page || 1,
+        count: req.query.count || 5,
+        results: parsedData,
+      };
+      res.status(200).send(responseJson);
+    }
+  });
 });
 
 app.post("/qa/questions", (req, res) => {
@@ -57,6 +126,13 @@ app.post("/qa/questions", (req, res) => {
     body: req.body.body,
     email: req.body.email,
   };
+  queries.postNewQuestion(req.body.product_id, queryObj, (err, result) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      res.send(201);
+    }
+  });
 });
 
 app.post("/qa/questions/:question_id/answers", (req, res) => {
