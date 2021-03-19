@@ -1,6 +1,7 @@
 const express = require("express");
 const queries = require("../models/queries");
-const answerParser = require("../models/answerParser");
+const parser = require("../models/parsers");
+
 const app = express();
 
 app.use(express.json());
@@ -13,6 +14,7 @@ app.get("/qa/questions", (req, res) => {
   // param page default 1
   // param count default 5
   // status 200
+
   if (!req.query.product_id) {
     res.status(400).send("Product ID is required.");
   }
@@ -21,7 +23,22 @@ app.get("/qa/questions", (req, res) => {
     page: req.query.page || 1,
     count: req.query.count || 5,
   };
+  // First I get all the questions that the client is looking for.
+  // Then I store those questions, and run a check for answers.
 
+  queries.getQuestions(queryObj.product_id, queryObj, (err, result) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      parser.questionParser(result.rows, (err, result) => {
+        if (err) {
+          res.status(400).send(err);
+        } else {
+          res.status(200).send(result);
+        }
+      });
+    }
+  });
   // Send the query object to our get questions pool.
 });
 
@@ -47,7 +64,7 @@ app.get("/qa/questions/:question_id/answers", (req, res) => {
       //const seenObjects = {};
 
       // Object is converted
-      const parsedData = answerParser.answerParser(result);
+      const parsedData = parser.answerParser(result);
       // result.forEach((obj) => {
       //   // We should only ever have one instance of the obj id in our seen objects.
       //   obj.answer_id = obj.id;

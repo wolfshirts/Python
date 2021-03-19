@@ -1,6 +1,24 @@
 const pool = require("./pg.js");
 
-const getQuestions = (productId, queryObj, cb) => {};
+const getQuestions = (productId, queryObj, cb) => {
+  const { page, count } = queryObj;
+  let offset = 0;
+  if (page > 1) {
+    // Adjust offset
+    offset = page * count;
+  }
+  pool.query(
+    "SELECT * FROM questions WHERE product_id=$1 AND reported=0 ORDER BY id ASC LIMIT $2 OFFSET $3;",
+    [productId, queryObj.limit, offset],
+    (err, result) => {
+      if (err) {
+        cb(err, null);
+      } else {
+        cb(null, result);
+      }
+    }
+  );
+};
 const getAnswers = (questionId, queryObj, cb) => {
   // FIXME: THIS QUERY IS VERY SLOW THE DATA WE WANT IS AT THE END OF THE TABLE.
 
@@ -14,7 +32,7 @@ const getAnswers = (questionId, queryObj, cb) => {
     offset = page * count;
   }
   const queryArray = [questionId, count, offset];
-  // FIXME:  need to get back photos too. Ooops.
+
   pool.query(
     // "SELECT * FROM answers LEFT OUTER JOIN photos ON answers.id=photos.answer_id WHERE reported=0 AND question_id=$1 ORDER BY answers.id ASC LIMIT $2 OFFSET $3",
     "select answers.*, photos.url, photos.id as photos_id from answers LEFT OUTER JOIN photos ON answers.id = photos.answer_id where reported=0 and question_id=$1 ORDER BY answers.id ASC LIMIT $2 OFFSET $3",

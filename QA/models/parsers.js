@@ -1,3 +1,5 @@
+const query = require("./queries");
+
 const answerParser = (data, withIDAsKey = true) => {
   // Create the object
 
@@ -17,6 +19,7 @@ const answerParser = (data, withIDAsKey = true) => {
     obj.helpfulness = obj.helpful;
     delete obj.helpful;
     delete obj.reported;
+    obj.photos = [];
     // If i'm right here, we can just push the obj to the array too it should act as a reference.
 
     //Here we're pushing to the obj array early
@@ -61,7 +64,7 @@ const answerParser = (data, withIDAsKey = true) => {
       }
     }
   });
-  debugger;
+
   if (withIDAsKey) {
     return objArray;
   }
@@ -69,6 +72,58 @@ const answerParser = (data, withIDAsKey = true) => {
   return seenObjects;
 };
 
+// FIXME: This has issues. It's very slow.
+const questionParser = (dataRows, cb) => {
+  // Initial parse through just clean up the data a bit.
+  const max = dataRows.length;
+  let counter = 0;
+  dataRows.forEach((obj) => {
+    obj.question_id = obj.id;
+    obj.question_body = obj.body;
+    obj.question_date = obj.date_written.toISOString();
+    obj.reported = obj.reported !== 0;
+    obj.question_helpfulness = obj.helpful;
+    delete obj.asker_email;
+    delete obj.id;
+    delete obj.body;
+    delete obj.date_written;
+    delete obj.helpful;
+    delete obj.product_id;
+    // Need to attach an answers obj try it with promises?
+    const defaultQueryObj = {
+      page: 1,
+      count: 5,
+      workingObjReference: obj,
+    };
+    query.getAnswers(obj.question_id, defaultQueryObj, (err, result) => {
+      if (err) {
+        cb(err, null);
+      } else {
+        const queryObj = defaultQueryObj;
+        counter += 1;
+        if (result.length > 0) {
+          // Let's write to our dataRows.
+          for (let h = 0; h < result.length; h++) {
+            const formattedResult = answerParser(result, false);
+            for (let i = 0; i < dataRows.length; i += 1) {
+              if (dataRows[i].question_id === result[h].question_id) {
+                const exist = dataRows[i].answers || {};
+                delete formattedResult.questionId;
+                const copy = { ...exist, ...formattedResult };
+                dataRows[i].answers = copy;
+              }
+            }
+          }
+          if (counter === max) {
+            cb(null, dataRows);
+          }
+        }
+      }
+    });
+  });
+};
+
 module.exports = {
   answerParser,
+  questionParser,
 };
