@@ -48,7 +48,6 @@ app.get("/qa/questions/:question_id/answers", (req, res) => {
 
       // Object is converted
       const parsedData = answerParser.answerParser(result);
-      debugger;
       // result.forEach((obj) => {
       //   // We should only ever have one instance of the obj id in our seen objects.
       //   obj.answer_id = obj.id;

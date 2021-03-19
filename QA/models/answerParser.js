@@ -1,10 +1,13 @@
-const answerParser = (data, withID = true) => {
+const answerParser = (data, withIDAsKey = true) => {
   // Create the object
 
   // Ayyyy! To do this in constant time we just push our objects into an array as well.
+
+  // The bug was when I push to the array, I push the object. But I need to be pushing the reference.
   const objArray = [];
   const seenObjects = {};
   // Object is converted
+
   data.forEach((obj) => {
     // We should only ever have one instance of the obj id in our seen objects.
     obj.answer_id = obj.id;
@@ -14,13 +17,18 @@ const answerParser = (data, withID = true) => {
     obj.helpfulness = obj.helpful;
     delete obj.helpful;
     delete obj.reported;
-
     // If i'm right here, we can just push the obj to the array too it should act as a reference.
-    objArray.push(obj);
+
+    //Here we're pushing to the obj array early
     if (obj.url === null) {
       delete obj.url;
       delete obj.photos_id;
       seenObjects[obj.answer_id] = obj;
+      objArray.push(obj);
+    }
+
+    if (withIDAsKey) {
+      delete obj.question_id;
     }
 
     if (obj.url) {
@@ -40,6 +48,7 @@ const answerParser = (data, withID = true) => {
         delete obj.url;
         delete obj.photos_id;
         seenObjects[obj.answer_id] = obj;
+        objArray.push(obj);
       } else {
         // If we've seen the object already we can push a photo obj to its array.
         // These should all be stored by reference, so at the end of this we can clear the
@@ -52,9 +61,11 @@ const answerParser = (data, withID = true) => {
       }
     }
   });
-  if (withID) {
+  debugger;
+  if (withIDAsKey) {
     return objArray;
   }
+
   return seenObjects;
 };
 
