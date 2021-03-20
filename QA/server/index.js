@@ -30,12 +30,8 @@ app.get("/qa/questions", (req, res) => {
     if (err) {
       res.status(400).send(err);
     } else {
-      parser.questionParser(result.rows, (err, result) => {
-        if (err) {
-          res.status(400).send(err);
-        } else {
-          res.status(200).send(result);
-        }
+      parser.filterQuestions(result.rows, queryObj.product_id, (e, ressie) => {
+        res.status(200).send(ressie);
       });
     }
   });
@@ -55,7 +51,6 @@ app.get("/qa/questions/:question_id/answers", (req, res) => {
     page: req.query.page || 1,
     count: req.query.count || 5,
   };
-  // TODO: FIXME: Break this into a healper function.
   queries.getAnswers(req.params.question_id, queryObj, (err, result) => {
     if (err) {
       res.status(400).send(err);

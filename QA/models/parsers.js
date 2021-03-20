@@ -1,5 +1,90 @@
 const query = require("./queries");
 
+const filterQuestions = (dataRows, productId, cb) => {
+  // FIXME: this currently returns reported answers.
+  const responseObject = {
+    product_id: productId.toString(),
+    results: [],
+  };
+
+  const seenAnswers = {};
+  const seenQuestions = {};
+  dataRows.forEach((obj) => {
+    // Create the results obj.
+    // Destructure for easier building
+    const {
+      question_id,
+      question_body,
+      question_date,
+      asker_name,
+      question_helpfulness,
+      answer_id,
+      answer_reported,
+      answerer_email,
+      answerer_name,
+      body,
+      helpfulness,
+      photo_id,
+      photos_answer_id,
+      date,
+      url,
+    } = obj;
+    // If we haven't seen this question, put it in seen questions. But we also have data pertaining to answers in this row.
+
+    if (!seenQuestions[question_id]) {
+      const resultObj = {
+        question_id,
+        question_body,
+        question_date: question_date.toISOString(),
+        asker_name,
+        question_helpfulness,
+        reported: false,
+        answers: {},
+      };
+      seenQuestions[question_id] = resultObj;
+    }
+
+    // If we haven't seen this answer, put it in answers.
+    if (!seenAnswers[answer_id]) {
+      const answerObj = {
+        id: answer_id,
+        body,
+        date: date.toISOString(),
+        answerer_name,
+        helpfulness,
+        photos: [],
+      };
+      seenAnswers[answer_id] = answerObj;
+      // If we have photos on this answer row, attach them to this obj photos
+      if (url !== undefined) {
+        const photoObj = {
+          id: photo_id,
+          url,
+        };
+        seenAnswers[answer_id].photos.push(photoObj);
+      }
+      // Then we want to attach it to the appropriate question, so we do that by doing
+    } else {
+      // If we've seen this answer already, we're seeing it again because it has to do with photos
+      if (url !== undefined) {
+        const photoObj = {
+          id: photo_id,
+          url,
+        };
+        seenAnswers[answer_id].photos.push(photoObj);
+      }
+    }
+    if (seenQuestions[question_id] && seenAnswers[answer_id]) {
+      seenQuestions[question_id].answers[answer_id] = seenAnswers[answer_id];
+    }
+  });
+  // Another loop theres probably a way around this but i'm beat.
+  Object.values(seenQuestions).forEach((obj) => {
+    responseObject.results.push(obj);
+  });
+  cb(null, responseObject);
+};
+
 const answerParser = (data, withIDAsKey = true) => {
   // Create the object
 
@@ -126,4 +211,5 @@ const questionParser = (dataRows, cb) => {
 module.exports = {
   answerParser,
   questionParser,
+  filterQuestions,
 };

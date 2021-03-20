@@ -7,8 +7,9 @@ const getQuestions = (productId, queryObj, cb) => {
     // Adjust offset
     offset = page * count;
   }
+  // We're not filtering for reported answers here because we always want to display questions.
   pool.query(
-    "SELECT * FROM questions WHERE product_id=$1 AND reported=0 ORDER BY id ASC LIMIT $2 OFFSET $3;",
+    "SELECT questions.id AS question_id, questions.product_id, questions.body AS question_body, questions.date_written AS question_date, questions.helpful AS question_helpfulness, questions.asker_name, answers.id AS answer_id, answers.question_id, answers.body, answers.answerer_name, answers.answerer_email, answers.helpful as helpfulness, answers.reported AS answer_reported, answers.date_written AS date, photos.id AS photo_id, photos.answer_id AS photos_answer_id, photos.url FROM questions JOIN answers ON answers.question_id=questions.id JOIN photos ON photos.answer_id=answers.id where questions.product_id=$1 and questions.reported=0 LIMIT $2 OFFSET $3",
     [productId, queryObj.limit, offset],
     (err, result) => {
       if (err) {
