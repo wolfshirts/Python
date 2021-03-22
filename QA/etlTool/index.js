@@ -82,6 +82,7 @@ const addIndexes = () => {
   pool.query("CREATE INDEX answerid ON photos(answer_id)");
   pool.query("CREATE INDEX questionid ON answers(question_id)");
   pool.query("CREATE INDEX prodid ON questions(product_id)");
+  pool.query("CREATE INDEX reported ON questions(reported)");
 };
 
 // const fileObject = {
