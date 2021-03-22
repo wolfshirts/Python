@@ -1,3 +1,4 @@
+const newRelic = require("newrelic");
 const express = require("express");
 const queries = require("../models/queries");
 const parser = require("../models/parsers");
