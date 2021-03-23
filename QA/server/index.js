@@ -2,13 +2,16 @@ const newRelic = require("newrelic");
 const express = require("express");
 const queries = require("../models/queries");
 const parser = require("../models/parsers");
-
+const secrets = require("../config.js");
 const app = express();
 
 app.use(express.json());
 const port = 3000;
 
 // Basic routes.
+app.get(`${secrets.loaderRoute}`, (req, res) => {
+  res.status(200).send(secrets.loaderResponse);
+});
 
 app.get("/qa/questions", (req, res) => {
   // query product_id mandatory
