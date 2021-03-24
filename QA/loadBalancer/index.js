@@ -3,7 +3,10 @@ const http = require("http");
 const secrets = require("../config.js");
 
 const app = express();
-const apiUrls = ["ec2-18-217-79-188.us-east-2.compute.amazonaws.com", ""];
+const apiUrls = [
+  "ec2-18-217-79-188.us-east-2.compute.amazonaws.com",
+  "ec2-18-222-227-211.us-east-2.compute.amazonaws.com",
+];
 
 app.use(express.json());
 
@@ -14,9 +17,15 @@ app.get(`/${secrets.loaderRoute}`, (req, res) => {
 });
 
 // Route for get balancer.
+let currentUrl = 0;
 app.get("/*", (req, res) => {
-  const currentUrl = 0;
-  const url = apiUrls[0];
+  currentUrl += 1;
+  if (currentUrl > apiUrls.length - 1) {
+    currentUrl = 0;
+  }
+  debugger;
+  console.log(`Sending to ${apiUrls[currentUrl]}`);
+  const url = apiUrls[currentUrl];
   // Logic to round robin.
   const requestOptions = {
     port: 3000,
