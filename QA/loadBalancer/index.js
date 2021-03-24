@@ -4,8 +4,8 @@ const secrets = require("../config.js");
 
 const app = express();
 const apiUrls = [
-  "ec2-18-217-79-188.us-east-2.compute.amazonaws.com",
-  "ec2-18-222-227-211.us-east-2.compute.amazonaws.com",
+  "ec2-3-21-129-111.us-east-2.compute.amazonaws.com",
+  "ec2-3-142-49-185.us-east-2.compute.amazonaws.com",
 ];
 
 app.use(express.json());
@@ -23,7 +23,7 @@ app.get("/*", (req, res) => {
   if (currentUrl > apiUrls.length - 1) {
     currentUrl = 0;
   }
-  debugger;
+
   console.log(`Sending to ${apiUrls[currentUrl]}`);
   const url = apiUrls[currentUrl];
   // Logic to round robin.
