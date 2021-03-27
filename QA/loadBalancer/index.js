@@ -18,10 +18,22 @@ app.get(`/${secrets.loaderRoute}`, (req, res) => {
 
 // Route for get balancer.
 let currentUrl = 0;
+
+// cache
+const cache = {};
+// counter to make sure the cache doesn't get out of hand.
+let counter = 0;
+// array storing cache keys we want to remove the key at the front since it's the last accessed.
+const keys = [];
+
 app.get("/*", (req, res) => {
   currentUrl += 1;
   if (currentUrl > apiUrls.length - 1) {
     currentUrl = 0;
+  }
+
+  if (cache[req.originalUrl]) {
+    res.status(200).send(cache[req.originalUrl]).end();
   }
 
   console.log(`Sending to ${apiUrls[currentUrl]}`);
@@ -33,6 +45,7 @@ app.get("/*", (req, res) => {
     method: req.method,
     headers: req.headers,
   };
+
   http.get(`http://${url}:3000${req.originalUrl}`, (resp) => {
     let data;
     resp.setEncoding("utf8");
@@ -41,6 +54,14 @@ app.get("/*", (req, res) => {
     });
     resp.on("end", () => {
       data = JSON.parse(data.slice(9));
+      if (!cache[req.originalUrl]) {
+        cache[req.originalUrl] = data;
+        keys.push(req.originalUrl);
+      }
+      counter += 1;
+      if (counter > 100) {
+        delete cache[keys.shift()];
+      }
       res.send(data);
     });
   });
